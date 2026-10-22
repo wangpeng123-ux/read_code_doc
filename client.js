@@ -26,6 +26,7 @@ window.__ModuleLoader__.load({
     const DRAG_MIME = 'application/x-dsh-read-doc-file'
     const QUOTE_PREFIX = 'read-doc-quote:v1:'
     const QUOTE_SOURCE = 'read-doc-quote'
+    const FOLDER_SOURCE = 'read-doc-folder'
 
     const zh = {
       meta: {
@@ -1474,7 +1475,7 @@ window.__ModuleLoader__.load({
               const mention = formatMention(relative)
               const name = payload.name || baseName(payload.path)
               return appendReference(current.input, current.inputActions, {
-                source: 'reference',
+                source: directory ? FOLDER_SOURCE : 'reference',
                 ref: mention,
                 label: directory ? `${name.replace(/\/+$/, '')}/` : name,
                 clipboardText: mention,
@@ -1605,6 +1606,26 @@ window.__ModuleLoader__.load({
             }
           },
         }), 'read-doc: quote reference source')
+
+        ctx.effect(() => triggers.registerSource({
+          trigger: '@',
+          name: FOLDER_SOURCE,
+          showGroupTitle: false,
+          async candidates() {
+            return []
+          },
+          codec: {
+            clipboardText(ref) {
+              return ref
+            },
+            serialize(ref) {
+              return Promise.resolve(`${String(ref).replace(/\s+$/u, '')} `)
+            },
+          },
+          openReference() {
+            return false
+          },
+        }), 'read-doc: folder reference source')
       }
 
       ctx.effect(() => {

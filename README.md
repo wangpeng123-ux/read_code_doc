@@ -90,7 +90,7 @@ The tab is kept alive while switching between preview files, so expanded directo
 
 ### Drag a file or folder into the conversation
 
-Drag a file or folder row from the tab and drop it on the composer text area. A reference chip is inserted; folders use a trailing-slash mention such as `@src/` and add a line break after the chip so following text starts on the next line. Paths inside the current session's workspace are relative; outside paths are absolute.
+Drag a file or folder row from the tab and drop it on the composer text area. A reference chip is inserted; folders use a trailing-slash mention such as `@src/` and add a line break after the chip so following text starts on the next line. Folder references serialize with a trailing separator space, so even if you delete the inserted line break, following text stays plain instead of joining the path. Paths inside the current session's workspace are relative; outside paths are absolute.
 
 ### Quote selected lines
 
