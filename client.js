@@ -1607,7 +1607,17 @@ window.__ModuleLoader__.load({
           const appended = composerHost.appendFile(payload)
           if (appended && event.target instanceof Element) {
             const editor = event.target.closest('[contenteditable="true"]')
-            if (editor && typeof editor.focus === 'function') editor.focus({ preventScroll: true })
+            if (editor && typeof editor.focus === 'function') {
+              editor.focus({ preventScroll: true })
+              const selection = window.getSelection()
+              if (selection) {
+                const range = document.createRange()
+                range.selectNodeContents(editor)
+                range.collapse(false)
+                selection.removeAllRanges()
+                selection.addRange(range)
+              }
+            }
           }
         }
 
