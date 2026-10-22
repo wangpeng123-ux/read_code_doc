@@ -1,0 +1,3 @@
+- insert:
+    - id: read-doc
+      name: '@local/dsh-read-doc'

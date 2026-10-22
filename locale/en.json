@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Workspace Files",
+    "description": "Browse every file in the current workspace, drag one into the composer, and quote selected lines through the DSH editor."
+  }
+}

@@ -1,0 +1,10 @@
+node_modules/
+.pnpm-store/
+*.log
+.DS_Store
+Thumbs.db
+
+# local analysis and smoke-test scratch files
+.tools/
+.smoke*.mjs
+.icon-smoke.mjs
