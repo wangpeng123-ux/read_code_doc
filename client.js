@@ -1012,6 +1012,7 @@ window.__ModuleLoader__.load({
         }, [notice])
 
         const toggleDirectory = (directory) => {
+          if (Date.now() - dragRef.current.at < 300) return
           setExpandedDirs((previous) => {
             const next = new Set(previous)
             if (next.has(directory)) next.delete(directory)
@@ -1069,17 +1070,22 @@ window.__ModuleLoader__.load({
 
         const startDrag = (event, entry) => {
           if (!activeWorkspace) return
+          const relative = entry.relative || baseName(entry.path)
+          const referencePath = entry.type === 'directory'
+            ? `${relative.replace(/\/+$/, '')}/`
+            : relative
           const payload = {
             path: entry.path,
-            relative: entry.relative,
+            relative,
             name: entry.name,
+            type: entry.type,
             workspace: activeWorkspace.path,
             sessionId: (currentCwd !== undefined && isInside(activeWorkspace.path, currentCwd))
               ? props.sessionId
               : (activeWorkspace.sessionIds?.[0] ?? props.sessionId ?? null),
           }
           event.dataTransfer.setData(DRAG_MIME, JSON.stringify(payload))
-          event.dataTransfer.setData('text/plain', formatMention(entry.relative || baseName(entry.path)))
+          event.dataTransfer.setData('text/plain', formatMention(referencePath))
           event.dataTransfer.effectAllowed = 'copy'
           dragRef.current.path = entry.path
         }
@@ -1126,7 +1132,10 @@ window.__ModuleLoader__.load({
                 className: 'rd-row rd-row--dir',
                 style: padding,
                 title: entry.path,
+                draggable: true,
                 onClick: () => toggleDirectory(entry.path),
+                onDragStart: (event) => startDrag(event, entry),
+                onDragEnd: endDrag,
               },
               h('span', { className: expanded ? 'rd-chevron rd-chevron--open' : 'rd-chevron' }, h(ChevronIcon, { size: 12 })),
               h('span', { className: 'rd-icon rd-icon--folder' }, h(FolderIcon, { size: 15 })),
@@ -1428,17 +1437,20 @@ window.__ModuleLoader__.load({
             appendFile(payload) {
               if (!payload || typeof payload.path !== 'string') return false
               const current = latestRef.current
+              const directory = payload.type === 'directory'
               const cwd = current.session?.cwd
-              const relative = cwd && isInside(cwd, payload.path)
+              let relative = cwd && isInside(cwd, payload.path)
                 ? relativeInside(cwd, payload.path)
                 : normalizeSlashes(payload.path)
+              if (directory) relative = `${relative.replace(/\/+$/, '')}/`
               const mention = formatMention(relative)
+              const name = payload.name || baseName(payload.path)
               return appendReference(current.input, current.inputActions, {
                 source: 'reference',
                 ref: mention,
-                label: payload.name || baseName(payload.path),
+                label: directory ? `${name.replace(/\/+$/, '')}/` : name,
                 clipboardText: mention,
-                appearance: 'file',
+                appearance: directory ? 'folder' : 'file',
               })
             },
           }

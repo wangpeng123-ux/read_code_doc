@@ -11,7 +11,7 @@ Built for DeepSeek Harness versions that provide `ui-conversation`, `ui-sidebar-
 - **Current workspace only** — the tab resolves the workspace from the active session's `cwd`, then shows that workspace's root path and full tree. Other workspaces are not mixed in.
 - **Full directory tree** — lazy directory loading, hidden files included, directories first, manual refresh, and a notice when a directory exceeds the transfer limit.
 - **File-type icons** — 50+ extension, filename, and pattern mappings (JS/TS/JSON/Markdown, Python/Rust/Go/Java, images/audio/video, PDF/Office, archives, fonts, databases, Git/Docker/config files, and more). Icons are inline SVG.
-- **Drag to reference** — drag a file row onto the composer. The plugin inserts a DSH file-reference chip; the model receives the `@path` mention.
+- **Drag to reference** — drag a file or folder row onto the composer. The plugin inserts a DSH reference chip; the model receives the `@path` (or `@folder/`) mention.
 - **Open in the DSH editor surface** — click a file to open it through `ui-sidebar-documentpreview`. Supported formats are exactly those of the built-in preview (code, plain text, Markdown, images, PDF, Office files, and so on).
 - **Quote selected lines** — select text in a code or plain-text preview, right-click, and choose **Quote in composer**. The composer shows a chip such as `【client.js，第 12-18 行】`; clicking it opens the file at line 12.
 - **Read-only and workspace-scoped** — the Host reads through `ctx.fs`, refuses paths outside registered workspaces, and never writes, renames, or deletes files.
@@ -88,9 +88,9 @@ The tab is kept alive while switching between preview files, so expanded directo
 - Click a file to open it in the DSH document preview in the right sidebar.
 - Use the refresh button in the tab header after files change on disk.
 
-### Drag a file into the conversation
+### Drag a file or folder into the conversation
 
-Drag a file row from the tab and drop it on the composer text area. A file-reference chip is inserted. Paths inside the current session's workspace are relative; outside paths are absolute.
+Drag a file or folder row from the tab and drop it on the composer text area. A reference chip is inserted; folders use a trailing-slash mention such as `@src/`. Paths inside the current session's workspace are relative; outside paths are absolute.
 
 ### Quote selected lines
 
