@@ -208,4 +208,4 @@ Replace `<your-account>` with your GitHub username.
 
 ## License
 
-No license is declared yet. Add a `LICENSE` file before distributing the project if you want others to reuse it.
+MIT License. See [LICENSE](LICENSE).

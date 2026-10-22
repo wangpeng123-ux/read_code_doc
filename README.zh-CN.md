@@ -208,4 +208,4 @@ git push -u origin main
 
 ## 许可证
 
-当前仓库还没有声明许可证。如果准备让其他人复用，请在发布前添加 `LICENSE` 文件。
+MIT License，详见 [LICENSE](LICENSE)。

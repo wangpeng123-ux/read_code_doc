@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "description": "Workspace file browser with drag-to-reference, DSH editor preview, and line-range quote chips.",
+  "license": "MIT",
   "exports": {
     ".": "./index.js",
     "./client": "./client.js",
