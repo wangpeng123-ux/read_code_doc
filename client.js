@@ -307,7 +307,8 @@ window.__ModuleLoader__.load({
       if (!input || input.phase === 'submitting' || input.phase === 'adjudicating') return false
       const draft = typeof input.draft === 'string' ? input.draft : ''
       const separator = draft === '' ? '' : (/\s$/.test(draft) ? '' : '\n')
-      const text = `${draft}${separator}${reference.clipboardText}`
+      const trailing = typeof reference.trailing === 'string' ? reference.trailing : ''
+      const text = `${draft}${separator}${reference.clipboardText}${trailing}`
       const references = []
       const existing = Array.isArray(input.occurrences) ? input.occurrences : []
       for (const occurrence of existing) {
@@ -1451,6 +1452,7 @@ window.__ModuleLoader__.load({
                 label: directory ? `${name.replace(/\/+$/, '')}/` : name,
                 clipboardText: mention,
                 appearance: directory ? 'folder' : 'file',
+                trailing: directory ? '\n' : '',
               })
             },
           }
