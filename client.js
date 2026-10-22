@@ -1426,6 +1426,7 @@ window.__ModuleLoader__.load({
       return function ComposerFilesButton(props) {
         const input = props.useInput((state) => state)
         const session = props.useSession((snapshot) => snapshot)
+        const buttonRef = useRef(null)
         const latestRef = useRef({})
         latestRef.current = {
           input,
@@ -1434,6 +1435,32 @@ window.__ModuleLoader__.load({
         }
 
         useEffect(() => {
+          let scope = buttonRef.current
+          let editor = null
+          for (let depth = 0; scope && depth < 6; depth += 1) {
+            if (scope === document.body) break
+            const candidate = typeof scope.querySelector === 'function'
+              ? scope.querySelector('[contenteditable="true"]')
+              : null
+            if (candidate) {
+              editor = candidate
+              break
+            }
+            scope = scope.parentElement
+          }
+
+          const focusEditor = () => {
+            if (!editor || typeof editor.focus !== 'function') return
+            editor.focus({ preventScroll: true })
+            const selection = window.getSelection()
+            if (!selection) return
+            const range = document.createRange()
+            range.selectNodeContents(editor)
+            range.collapse(false)
+            selection.removeAllRanges()
+            selection.addRange(range)
+          }
+
           const api = {
             appendFile(payload) {
               if (!payload || typeof payload.path !== 'string') return false
@@ -1455,6 +1482,10 @@ window.__ModuleLoader__.load({
                 trailing: directory ? '\n' : '',
               })
             },
+            contains(target) {
+              return Boolean(scope && target && (target === scope || scope.contains(target)))
+            },
+            focus: focusEditor,
           }
           composerHost = api
           return () => {
@@ -1463,6 +1494,7 @@ window.__ModuleLoader__.load({
         }, [])
 
         return h('button', {
+          ref: buttonRef,
           type: 'button',
           className: 'rd-icon-btn rd-composer-btn',
           title: t('files.tabTitle'),
@@ -1576,24 +1608,23 @@ window.__ModuleLoader__.load({
       }
 
       ctx.effect(() => {
-        const isEditable = (target) => target instanceof Element
-          && target.closest('[contenteditable="true"]') !== null
-
         const hasDrag = (event) => {
           const types = event.dataTransfer?.types
           if (!types) return false
           return Array.prototype.indexOf.call(types, DRAG_MIME) !== -1
         }
 
+        const isComposerTarget = (target) => composerHost?.contains?.(target) === true
+
         const onDragOver = (event) => {
-          if (!hasDrag(event) || !isEditable(event.target) || !composerHost?.appendFile) return
+          if (!hasDrag(event) || !isComposerTarget(event.target) || !composerHost?.appendFile) return
           event.preventDefault()
           event.stopPropagation()
           if (event.dataTransfer) event.dataTransfer.dropEffect = 'copy'
         }
 
         const onDrop = (event) => {
-          if (!hasDrag(event) || !isEditable(event.target) || !composerHost?.appendFile) return
+          if (!hasDrag(event) || !isComposerTarget(event.target) || !composerHost?.appendFile) return
           event.preventDefault()
           event.stopPropagation()
           const payloadText = event.dataTransfer.getData(DRAG_MIME)
@@ -1605,20 +1636,7 @@ window.__ModuleLoader__.load({
             return
           }
           const appended = composerHost.appendFile(payload)
-          if (appended && event.target instanceof Element) {
-            const editor = event.target.closest('[contenteditable="true"]')
-            if (editor && typeof editor.focus === 'function') {
-              editor.focus({ preventScroll: true })
-              const selection = window.getSelection()
-              if (selection) {
-                const range = document.createRange()
-                range.selectNodeContents(editor)
-                range.collapse(false)
-                selection.removeAllRanges()
-                selection.addRange(range)
-              }
-            }
-          }
+          if (appended) composerHost.focus?.()
         }
 
         const onContextMenu = (event) => {
