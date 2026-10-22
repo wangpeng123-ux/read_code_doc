@@ -1604,7 +1604,11 @@ window.__ModuleLoader__.load({
           } catch {
             return
           }
-          composerHost.appendFile(payload)
+          const appended = composerHost.appendFile(payload)
+          if (appended && event.target instanceof Element) {
+            const editor = event.target.closest('[contenteditable="true"]')
+            if (editor && typeof editor.focus === 'function') editor.focus({ preventScroll: true })
+          }
         }
 
         const onContextMenu = (event) => {
